@@ -2,8 +2,8 @@
 
 ## Benchmark construction
 
-   To support the comprehensive modeling of the *heterogeneity*, *irregularity*, and *interdependency* characteristics of clinical time series data, we build a new benchmark, named **ClinTS-HII**.
-   This repository maintains all the documentation and needed scripts to build the ClinTS-HII benchmark.
+   To support the comprehensive modeling of the *heterogeneity*, *irregularity*, and *interdependency* characteristics of clinical time series data, we build a new benchmark.
+   This repository maintains all the documentation and needed scripts to build the benchmark.
    We selected 61 common biomarker variables to indicate the physiological states of a patient and 42 widely used interventions in intensive care units to represent the major events interdependent on these physiological states. 
 
    This benchmark includes a diverse set of clinical tasks covering different clinical scenarios for evaluation. The following table summarizes the statistics of these tasks.
@@ -63,4 +63,4 @@
 
 The original [MIMIC-III database](https://mimic.mit.edu/docs/iii/) is hosted and maintained on [PhysioNet](https://physionet.org/about/) under [PhysioNet Credentialed Health Data License 1.5.0](https://physionet.org/content/mimiciii/view-license/1.4/), and is publicly accessible at [https://physionet.org/content/mimiciii/1.4/](https://physionet.org/content/mimiciii/1.4/).
 
-Our code in this repository is licensed under the [MIT license](https://github.com/nullnullll/ClinTS_HII/blob/main/LICENSE).
+Our code in this repository is licensed under the [MIT license](https://github.com/youngKG/Multi-Granularity-ClinTS/blob/main/LICENSE).
