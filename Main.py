@@ -16,9 +16,6 @@ import sys
 from sklearn import metrics
 import gc
 
-
-sample_min = 0.5
-sample_max = 1
 eps = 1e-10
 
 def train_epoch(model, training_data, optimizer, pred_loss_func, opt, classifier):
@@ -203,8 +200,8 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--root_path', type=str, default='/home/covpreduser/Blob/')
-    parser.add_argument('--data_path', type=str, default='v-chong/pycharm_projects/dataset/')
+    parser.add_argument('--root_path', type=str, default='')
+    parser.add_argument('--data_path', type=str, default='path/to/save_data_folder/')
 
     parser.add_argument('--epoch', type=int, default=20)
     parser.add_argument('--batch_size', type=int, default=2)
@@ -229,17 +226,16 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=1e-5)
     parser.add_argument('--load_path', type=str, default=None)
 
-
     parser.add_argument('--task', type=str, default='nan')
     parser.add_argument('--sample_times', type=int, default=3)
     # enc_tau: "mlp", "tem"
     parser.add_argument('--enc_tau', type=str, default='mlp')
     parser.add_argument('--debug_flag', action='store_true')
     parser.add_argument('--dp_flag', action='store_true')
+    # if OOM kill occur in loading data, try to split training set into 5 part and load data in batch
     parser.add_argument('--load_in_batch', action='store_true')
     parser.add_argument('--hie', action='store_true')
     parser.add_argument('--adpt', action='store_true')
-    parser.add_argument('--miss_ratio', type=float, default=0.0)
     parser.add_argument('--width', type=float, default=0.0)
     parser.add_argument('--new_l', type=int, default=0)
     opt = parser.parse_args()
@@ -257,7 +253,7 @@ def main():
         opt.n_classes = 54
     elif opt.task == 'los':
         opt.n_classes = 9
-    elif opt.task != 'pretrain':
+    else:
         print("invalid task name!")
         sys.exit(0)
     
@@ -338,10 +334,6 @@ def main():
             if opt.new_l > 0:
                 opt.log = opt.log + '_c' + str(opt.new_l)
                 save_name = save_name + '_c' + str(opt.new_l)
-                       
-    if opt.miss_ratio > 0:
-        opt.log = opt.log + '_miss' + str(opt.miss_ratio)
-        save_name = save_name + '_miss' + str(opt.miss_ratio)
 
     """ optimizer and scheduler """
 

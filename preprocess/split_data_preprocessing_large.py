@@ -128,7 +128,7 @@ def preproc_interv_xy(adm_icu_id, data_x, vent_label, vaso_label, dataset_name, 
     if not os.path.isdir(dataset_name):
         os.mkdir(dataset_name)
 
-    pickle.dump(ts_len, open(dataset_name + split_name + '_ts_len.p', 'wb'))
+    # pickle.dump(ts_len, open(dataset_name + split_name + '_ts_len.p', 'wb'))
     pickle.dump(adm_icu_id, open(dataset_name + split_name + '_sub_adm_icu_idx.p', 'wb'))
     save_interv_xy(x, m, T, vent_label, vaso_label, dataset_name + split_name)
     
@@ -144,11 +144,11 @@ def save_interv_xy(in_x,in_m,in_T, vent_label, vaso_label, save_path):
     print(x.shape)
     print(vent_label.shape)
     print(vaso_label.shape)
-
     print(save_path, " saved success")
 
 
 def create_map(icu,events):
+    chart_label_dict = {}
     icu_dict = {}
     los_dict = {}
     adm2subj_dict = {}
@@ -181,16 +181,41 @@ def create_map(icu,events):
             feature_map[i] = idx
             idx += 1
             feature_set.append(i)
+    
+    type_dict = {}
+    for i in feature_set:
+        tmp_p = events.loc[events.NAME.isin([i])]
+        tmp_set = set(tmp_p.TABLE)
+        type_dict.update({i: tmp_set})
+
+    idx = 0
+    for k in type_dict:
+        if 'chart' in type_dict[k] or 'lab' in type_dict[k]:
+            if k not in chart_label_dict and k != "Mechanical Ventilation":
+                chart_label_dict[k] = idx
+                idx += 1
             
     print("got ", str(len(feature_set)), " features")
-    return icu_dict, los_dict, adm2subj_dict, adm2deathtime_dict
+    return chart_label_dict, icu_dict, los_dict, adm2subj_dict, adm2deathtime_dict
     
+def create_adm_split(adm):
 
+
+    return train_adm_id, test_adm_id, val_adm_id
 
 if __name__ == '__main__':
-    data_root_folder = "path/to/save_folder/"
+    data_root_folder = "path/to/save_data_folder/"
+
+    if not os.path.isdir(data_root_folder):
+        os.mkdir(data_root_folder)
+
     data_tmp_folder = data_root_folder + "tmp/"
-    # dict_path = data_tmp_folder + "dict_large.p"
+
+    if not os.path.isdir(data_tmp_folder):
+        os.mkdir(data_tmp_folder)
+
+    adm_id_folder =  "./adm_id/"
+
     bio_path = data_tmp_folder + "patient_records_large.p"
     interv_outPath = data_tmp_folder + "cip_hourly_data.h5"
     resource_path = "./proc_util/resource/"
@@ -209,8 +234,12 @@ if __name__ == '__main__':
 
     # feature_map, chart_label_dict, icu_dict, los_dict, adm2subj_dict, adm2deathtime_dict = pickle.load(open(dict_path, 'rb'))
     
-    remove_mod_idx = [2, 65, 91, 119, 42, 97, 120, 115, 94, 62, 105, 63, 73, 81, 87, 98, 110, 67, 93]
+    # This is optional
+    # remove_mod_idx = [] # keep 122 features
+    remove_mod_idx = [2, 65, 91, 119, 42, 97, 120, 115, 94, 62, 105, 63, 73, 81, 87, 98, 110, 67, 93] # keep 103 features 
     # remove_mod_idx = [2, 66, 92, 120, 42, 98, 121, 116, 95, 63, 106, 64, 74, 82, 88, 99, 111, 68, 94]
+
+
     tmp_feature_name = sorted(feature_map.items(),  key=lambda d: d[1], reverse=False)
     feature_map = {}
     feature_name = []
@@ -221,6 +250,8 @@ if __name__ == '__main__':
             new_idx += 1
             feature_name.append(i)
     print("got ", str(len(feature_map)), " features")
+
+    chart_label_dict, icu_dict, los_dict, adm2subj_dict, adm2deathtime_dict = create_map(icu,events)
     
     events.CHARTTIME = pd.to_datetime(events.CHARTTIME)
     adm.ADMITTIME = pd.to_datetime(adm.ADMITTIME)
@@ -228,9 +259,10 @@ if __name__ == '__main__':
     adm.DEATHTIME = pd.to_datetime(adm.DEATHTIME)
 
 
-    train_adm_id = pickle.load(open('/home/covpreduser/Blob/v-jiawezhang/ClinTS_HII/data/median_data_small/adm_id/train_adm_idx.p', 'rb'))
-    test_adm_id = pickle.load(open('/home/covpreduser/Blob/v-jiawezhang/ClinTS_HII/data/median_data_small/adm_id/test_adm_idx.p', 'rb'))
-    val_adm_id = pickle.load(open('/home/covpreduser/Blob/v-jiawezhang/ClinTS_HII/data/median_data_small/adm_id/val_adm_idx.p', 'rb'))
+    # data split
+    train_adm_id = pickle.load(open(adm_id_folder + 'train_adm_idx.p', 'rb'))
+    test_adm_id = pickle.load(open(adm_id_folder + 'test_adm_idx.p', 'rb'))
+    val_adm_id = pickle.load(open(adm_id_folder + 'val_adm_idx.p', 'rb'))
 
     # # #==== Mortality ====
     mor_adm_icu_id, mor_data, mor_label = create_mor_large(adm, events, adm2subj_dict, feature_map, filt_adm_ids=train_adm_id)

@@ -35,7 +35,18 @@
 
    ### II. Generate datasets
 
-   Under construction... :construction:
+   1. Modify the ```mimic_data_dir``` variable to the MIMIC-III folder path in the ```preprocess_mimic_iii_large.py``` file, and run
+
+      ```bash
+      cd preprocess
+      python preprocess_mimic_iii_large.py
+      ```
+
+   2. Modify the ```data_root_folder``` and ```mimic_data_dir``` variables to the MIMIC-III folder path in the ```split_data_preprocessing_large.py```, and run the following command for data splitting and downstream tasks generation:
+      ```bash
+      python split_data_preprocessing_large.py
+      ```
+
 
 ## Run our model
 
